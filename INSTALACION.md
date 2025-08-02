@@ -10,8 +10,8 @@
 ### **Windows:**
 ```bash
 # 1. Clonar el repositorio
-git clone [URL_DEL_REPOSITORIO]
-cd catalogo-gardem
+git clone https://github.com/SergioProgramando01/catalogo-gardem-backend.git
+cd catalogo-gardem-backend
 
 # 2. Ejecutar instalación automática
 install.bat
@@ -20,190 +20,42 @@ install.bat
 ### **Linux/Mac:**
 ```bash
 # 1. Clonar el repositorio
-git clone [URL_DEL_REPOSITORIO]
-cd catalogo-gardem
+git clone https://github.com/SergioProgramando01/catalogo-gardem-backend.git
+cd catalogo-gardem-backend
 
 # 2. Ejecutar instalación automática
 ./install.sh
 ```
 
-## �� Instalación Manual
+## 🗄️ Configuración de Base de Datos
 
-### **1. Instalar dependencias:**
+### **Opción A - Script Automático (Recomendado):**
 ```bash
-cd backend
-npm install
-```
-
-### **2. Configurar base de datos:**
-```bash
-# Crear base de datos
 mysql -u root -p < database/gardem_db_schema.sql
 ```
 
-### **3. Configurar variables de entorno:**
+### **Opción B - Manual:**
 ```bash
-# Copiar archivo de ejemplo
-cp .env.example .env
-
-# Editar .env con tus datos
-nano .env
+mysql -u root -p
+CREATE DATABASE gardem_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE gardem_db;
+source database/gardem_db_schema.sql;
 ```
 
-### **4. Iniciar servidor:**
+### **Verificar Base de Datos:**
 ```bash
-npm run dev
+mysql -u root -p gardem_db
+SHOW TABLES;
+SELECT * FROM Tallas;
+SELECT * FROM Colores;
+SELECT * FROM Categorias;
 ```
 
-## 🧪 Verificar instalación
+## ⚙️ Configuración de Variables de Entorno
 
-```bash
-# Probar health check
-curl http://localhost:3000/health
-
-# Ejecutar testeo general
-node test-general-backend.js
-```
-
-## 📊 Estructura del proyecto
-
-```
-catalogo-gardem/
-├── backend/              # API principal
-├── database/             # Scripts de BD
-├── install.bat          # Instalador Windows
-├── install.sh           # Instalador Linux/Mac
-└── INSTALACION.md       # Esta guía
-```
-
-## 🆘 Solución de problemas
-
-### **Error de conexión a BD:**
-- Verificar que MySQL esté ejecutándose
-- Revisar credenciales en `.env`
-- Verificar que la BD `gardem_db` exista
-
-### **Error de dependencias:**
-```bash
-cd backend
-rm -rf node_modules package-lock.json
-npm install
-```
-
-### **Error de puerto:**
-- Cambiar `PORT` en `.env`
-- Verificar que el puerto no esté en uso
-```
-
-## ⚠️ Problemas sin .gitignore
-
-### **1. Archivos que NO deberían subirse:**
-- `node_modules/` - Muy pesado (cientos de MB)
-- `.env` - Contiene contraseñas y datos sensibles
-- `logs/` - Archivos temporales
-- Archivos del sistema (`.DS_Store`, `Thumbs.db`)
-
-### **2. Consecuencias:**
-- **Repositorio muy pesado** (node_modules puede ser 500MB+)
-- **Datos sensibles expuestos** (contraseñas de BD)
-- **Conflictos entre equipos** (archivos específicos del sistema)
-- **Descarga lenta** para otros desarrolladores
-
-## ️ Solución: Crear .gitignore correcto
-
-```bash
-# Crear .gitignore en la raíz del proyecto
-cd /c/Users/SERGIO/Desktop/DESARROLLOS/catalogo-gardem
-```
-
-```bash
-# Crear el archivo .gitignore
-echo "# Dependencies
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Logs
-logs
-*.log
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage directory used by tools like istanbul
-coverage/
-
-# nyc test coverage
-.nyc_output
-
-# Dependency directories
-node_modules/
-jspm_packages/
-
-# Optional npm cache directory
-.npm
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# dotenv environment variables file
-.env
-
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Database files (opcional - si quieres incluir los scripts SQL)
-# *.sql
-# *.db
-
-# Uploads
-uploads/
-public/uploads/
-
-# Temporary files
-tmp/
-temp/
-
-# Test files (opcional)
-test-*.js
-*.test.js" > .gitignore
-```
-
-## 📋 Pasos para que funcione en otro equipo
-
-### **1. Crear archivo de configuración de ejemplo**
-```bash
-# Crear .env.example
-echo "# Configuración de la base de datos
+Editar `backend/.env`:
+```env
+# Configuración de la base de datos
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=tu_password
@@ -221,108 +73,16 @@ JWT_EXPIRES_IN=24h
 # Configuración de seguridad
 BCRYPT_ROUNDS=10
 RATE_LIMIT_WINDOW_MS=900000
-RATE_LIMIT_MAX_REQUESTS=100" > backend/.env.example
+RATE_LIMIT_MAX_REQUESTS=100
 ```
 
-### **2. Crear script de instalación**
+## 🧪 Verificar Instalación
+
 ```bash
-# Crear install.bat (Windows)
-echo "@echo off
-echo Instalando dependencias del backend...
+# Probar conexión a BD
 cd backend
-npm install
-echo.
-echo Configurando variables de entorno...
-if not exist .env (
-    copy .env.example .env
-    echo Archivo .env creado. Por favor, edita las variables de entorno.
-)
-echo.
-echo Instalacion completada!
-echo Para iniciar el servidor: npm run dev
-pause" > install.bat
-```
+node test-mysql-only.js
 
-```bash
-# Crear install.sh (Linux/Mac)
-echo '#!/bin/bash
-echo "Instalando dependencias del backend..."
-cd backend
-npm install
-echo ""
-echo "Configurando variables de entorno..."
-if [ ! -f .env ]; then
-    cp .env.example .env
-    echo "Archivo .env creado. Por favor, edita las variables de entorno."
-fi
-echo ""
-echo "Instalacion completada!"
-echo "Para iniciar el servidor: npm run dev"' > install.sh
-chmod +x install.sh
-```
-
-### **3. Crear README de instalación**
-```markdown:INSTALACION.md
-# 🚀 Guía de Instalación - Catálogo Gardem Backend
-
-## 📋 Prerrequisitos
-- Node.js (versión 14 o superior)
-- MySQL (XAMPP recomendado)
-- npm o yarn
-
-## ⚡ Instalación Rápida
-
-### **Windows:**
-```bash
-# 1. Clonar el repositorio
-git clone [URL_DEL_REPOSITORIO]
-cd catalogo-gardem
-
-# 2. Ejecutar instalación automática
-install.bat
-```
-
-### **Linux/Mac:**
-```bash
-# 1. Clonar el repositorio
-git clone [URL_DEL_REPOSITORIO]
-cd catalogo-gardem
-
-# 2. Ejecutar instalación automática
-./install.sh
-```
-
-##  Instalación Manual
-
-### **1. Instalar dependencias:**
-```bash
-cd backend
-npm install
-```
-
-### **2. Configurar base de datos:**
-```bash
-# Crear base de datos
-mysql -u root -p < database/gardem_db_schema.sql
-```
-
-### **3. Configurar variables de entorno:**
-```bash
-# Copiar archivo de ejemplo
-cp .env.example .env
-
-# Editar .env con tus datos
-nano .env
-```
-
-### **4. Iniciar servidor:**
-```bash
-npm run dev
-```
-
-## 🧪 Verificar instalación
-
-```bash
 # Probar health check
 curl http://localhost:3000/health
 
@@ -330,65 +90,99 @@ curl http://localhost:3000/health
 node test-general-backend.js
 ```
 
-## 📊 Estructura del proyecto
+##  Iniciar Servidor
+
+```bash
+cd backend
+npm run dev
 ```
-catalogo-gardem/
+
+##  Estructura del Proyecto
+
+```
+catalogo-gardem-backend/
 ├── backend/              # API principal
-├── database/             # Scripts de BD
+│   ├── src/
+│   │   ├── modules/      # 12 módulos MVC
+│   │   ├── config/
+│   │   ├── database/
+│   │   └── utils/
+│   ├── package.json
+│   ├── README.md
+│   └── test-*.js        # Scripts de prueba
+├── database/
+│   └── *.sql            # Scripts de base de datos
 ├── install.bat          # Instalador Windows
 ├── install.sh           # Instalador Linux/Mac
 └── INSTALACION.md       # Esta guía
 ```
 
-## 🆘 Solución de problemas
-
-### **Error de conexión a BD:**
-- Verificar que MySQL esté ejecutándose
-- Revisar credenciales en `.env`
-- Verificar que la BD `gardem_db` exista
-
-### **Error de dependencias:**
-```bash
-cd backend
-rm -rf node_modules package-lock.json
-npm install
-```
-
-### **Error de puerto:**
-- Cambiar `PORT` en `.env`
-- Verificar que el puerto no esté en uso
-```
-
-##  Comandos Git finales
+## 🚀 Comandos para subir todo
 
 ```bash
-# Agregar archivos nuevos
-git add .gitignore
-git add backend/.env.example
+# Agregar archivos actualizados
 git add install.bat
 git add install.sh
 git add INSTALACION.md
+git add database/
 
 # Commit
-git commit -m "📦 Agregar archivos de instalación y configuración
+git commit -m " Actualizar scripts de instalación con configuración de BD
 
-✅ .gitignore - Excluir archivos sensibles
-✅ .env.example - Configuración de ejemplo
-✅ install.bat/sh - Scripts de instalación automática
-✅ INSTALACION.md - Guía completa de instalación
+✅ install.bat - Script Windows con instrucciones de BD
+✅ install.sh - Script Linux/Mac con instrucciones de BD
+✅ INSTALACION.md - Guía completa actualizada
+✅ database/ - Scripts SQL para configuración automática
 
-🚀 Listo para distribución en equipo"
+️ Incluye:
+- Instrucciones paso a paso para BD
+- Scripts automáticos de instalación
+- Verificación de instalación
+- Solución de problemas comunes
+
+🚀 Listo para instalación completa en otros equipos"
 
 # Subir
 git push
 ```
 
-## ✅ Beneficios de esta configuración
+¿Te parece bien esta configuración? ¿Quieres que ajuste algo en los scripts de instalación? 
 
-1. **Repositorio limpio** - Sin archivos innecesarios
-2. **Instalación fácil** - Scripts automáticos
-3. **Configuración segura** - Variables de entorno protegidas
-4. **Documentación clara** - Guía paso a paso
-5. **Funciona en cualquier equipo** - Configuración portable
+## 🚀 Comandos para incluir todo
 
-¿Te parece bien esta configuración? ¿Quieres que ajuste algo específico? 
+```bash
+# Agregar archivos de BD
+git add database/
+git add DATABASE.md
+
+# Actualizar script de instalación
+git add install.bat
+
+# Commit
+git commit -m "️ Agregar configuración de base de datos
+
+✅ database/ - Scripts SQL completos
+✅ DATABASE.md - Guía completa de configuración de BD
+✅ install.bat - Script actualizado con instrucciones de BD
+
+📊 Incluye:
+- 12 tablas con relaciones
+- Datos iniciales (tallas, colores, categorías)
+- Usuario admin por defecto
+- Scripts de verificación
+
+🚀 Listo para instalación completa en otros equipos"
+
+# Subir
+git push
+```
+
+## ✅ Recomendación Final
+
+**SÍ incluir los scripts SQL** porque:
+- Son necesarios para que otros equipos funcionen
+- No contienen datos sensibles (solo estructura)
+- Permiten instalación automática
+- Están versionados y controlados
+
+¿Te parece bien esta configuración? ¿Quieres que agregue algo más específico sobre la base de datos?
